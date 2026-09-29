@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Holiday Countdown — 23 Nov 2026</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+</head>
+<body data-theme="tropical">
+  <div class="background-decorations" aria-hidden="true">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+    <canvas id="ambient-canvas"></canvas>
+  </div>
+
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="brand">
+        <span class="brand-icon">✈️</span>
+        <div>
+          <h1 class="brand-title" id="display-title" contenteditable="false">Holiday Countdown</h1>
+          <p class="brand-subtitle" id="display-subtitle">
+            <span class="pin-icon">📍</span>
+            <span id="destination-text">Tropical Getaway</span>
+            <span class="badge" id="departure-badge">Nov 23, 2026</span>
+          </p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Theme Selector -->
+        <div class="theme-selector-wrapper">
+          <label for="theme-select" class="sr-only">Choose Theme</label>
+          <select id="theme-select" class="control-select">
+            <option value="tropical">🌴 Tropical Paradise</option>
+            <option value="sunset">🌅 Golden Sunset</option>
+            <option value="alpine">❄️ Alpine Winter</option>
+            <option value="europe">🏛️ Mediterranean</option>
+            <option value="cyber">🌆 Cyber Twilight</option>
+          </select>
+        </div>
+
+        <!-- Ambient Sound Controller -->
+        <button id="audio-toggle-btn" class="icon-button" title="Toggle relaxing ambient audio" aria-label="Toggle ambient sound">
+          <span class="icon" id="audio-icon">🔇</span>
+          <span class="button-label">Ambience</span>
+        </button>
+
+        <!-- Edit Trip Settings Modal Trigger -->
+        <button id="open-settings-btn" class="icon-button primary" title="Edit countdown settings">
+          <span class="icon">⚙️</span>
+          <span class="button-label">Settings</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Countdown Hero Section -->
+      <section class="countdown-hero-card" aria-label="Countdown Timer">
+        <div class="hero-top-info">
+          <div class="status-pill">
+            <span class="live-dot"></span>
+            <span id="countdown-status-text">Counting down to departure</span>
+          </div>
+          <div class="quote-text" id="random-quote">"The journey of a thousand miles begins with a single step."</div>
+        </div>
+
+        <!-- Countdown Digits Grid -->
+        <div class="countdown-grid" id="countdown-units">
+          <div class="time-card" data-unit="days">
+            <div class="time-number-box">
+              <span class="number" id="unit-days">000</span>
+            </div>
+            <span class="time-label">DAYS</span>
+            <span class="time-sub" id="sub-days">remaining</span>
+          </div>
+
+          <div class="time-card" data-unit="hours">
+            <div class="time-number-box">
+              <span class="number" id="unit-hours">00</span>
+            </div>
+            <span class="time-label">HOURS</span>
+            <span class="time-sub" id="sub-hours">in the day</span>
+          </div>
+
+          <div class="time-card" data-unit="minutes">
+            <div class="time-number-box">
+              <span class="number" id="unit-minutes">00</span>
+            </div>
+            <span class="time-label">MINUTES</span>
+            <span class="time-sub" id="sub-minutes">this hour</span>
+          </div>
+
+          <div class="time-card" data-unit="seconds">
+            <div class="time-number-box">
+              <span class="number" id="unit-seconds">00</span>
+            </div>
+            <span class="time-label">SECONDS</span>
+            <span class="time-sub" id="sub-seconds">live tick</span>
+          </div>
+        </div>
+
+        <!-- Journey Progress Bar -->
+        <div class="progress-section">
+          <div class="progress-labels">
+            <span id="progress-start-label">Start Date: 29 Sep 2026</span>
+            <span class="progress-percentage" id="progress-percentage-label">0% Elapsed</span>
+            <span id="progress-target-label">Departure: 23 Nov 2026</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" id="progress-fill" style="width: 0%;">
+              <span class="progress-airplane" id="progress-plane">✈️</span>
+            </div>
+          </div>
+          <div class="sleeps-badge-row">
+            <span class="sleeps-badge" id="sleeps-badge">🛏️ Only <strong>--</strong> sleeps left!</span>
+            <span class="workdays-badge" id="workdays-badge">💼 <strong>--</strong> working days remaining</span>
+          </div>
+        </div>
+
+        <!-- Quick Summary Stats Strip -->
+        <div class="summary-stats-strip">
+          <div class="stat-item">
+            <span class="stat-value" id="stat-total-weeks">--</span>
+            <span class="stat-label">Total Weeks</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <span class="stat-value" id="stat-total-hours">--</span>
+            <span class="stat-label">Total Hours</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <span class="stat-value" id="stat-total-minutes">--</span>
+            <span class="stat-label">Total Minutes</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <span class="stat-value" id="stat-total-seconds">--</span>
+            <span class="stat-label">Total Seconds</span>
+          </div>
+        </div>
+
+        <!-- Hero Actions -->
+        <div class="hero-actions">
+          <button id="celebrate-preview-btn" class="pill-btn secondary">
+            🎉 Preview Arrival Confetti
+          </button>
+          <button id="share-countdown-btn" class="pill-btn primary">
+            📤 Share Countdown
+          </button>
+        </div>
+      </section>
+
+      <!-- App Tabs -->
+      <section class="tools-section">
+        <nav class="tabs-nav" role="tablist">
+          <button class="tab-btn active" role="tab" aria-selected="true" data-tab="packing">
+            <span class="tab-icon">🧳</span> Packing Checklist
+            <span class="tab-counter" id="packing-badge-counter">0/0</span>
+          </button>
+          <button class="tab-btn" role="tab" aria-selected="false" data-tab="milestones">
+            <span class="tab-icon">📅</span> Pre-Trip Milestones
+          </button>
+          <button class="tab-btn" role="tab" aria-selected="false" data-tab="budget">
+            <span class="tab-icon">💰</span> Budget & Savings
+          </button>
+          <button class="tab-btn" role="tab" aria-selected="false" data-tab="clocks">
+            <span class="tab-icon">⏰</span> World Clocks & Notes
+          </button>
+        </nav>
+
+        <div class="tab-content-container">
+          <!-- TAB 1: Packing List -->
+          <div class="tab-pane active" id="pane-packing" role="tabpanel">
+            <div class="pane-header">
+              <div>
+                <h2 class="pane-title">Vacation Packing Checklist</h2>
+                <p class="pane-desc">Track essential travel documents, clothing, and gear with automatic progress saves.</p>
+              </div>
+              <div class="packing-overall-progress">
+                <div class="progress-ring-text">
+                  <span id="packing-percentage">0%</span>
+                  <span class="label">Packed</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Add new item input -->
+            <form id="add-packing-form" class="add-item-form">
+              <select id="packing-category-input" class="form-select" required>
+                <option value="Documents">📄 Documents & Money</option>
+                <option value="Clothing">👕 Clothes & Shoes</option>
+                <option value="Toiletries">🧴 Toiletries & Care</option>
+                <option value="Electronics">🔌 Tech & Gadgets</option>
+                <option value="Misc">🎒 Carry-On & Misc</option>
+              </select>
+              <input type="text" id="packing-item-name" class="form-input" placeholder="e.g. Passport, Sunglasses, Power bank..." required>
+              <button type="submit" class="pill-btn primary">+ Add Item</button>
+            </form>
+
+            <!-- Packing list items categorized -->
+            <div class="packing-categories-grid" id="packing-categories-container">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <!-- TAB 2: Milestones -->
+          <div class="tab-pane" id="pane-milestones" role="tabpanel">
+            <div class="pane-header">
+              <div>
+                <h2 class="pane-title">Pre-Trip Milestone Countdown</h2>
+                <p class="pane-desc">Key preparation checkpoints to ensure a stress-free departure on Nov 23, 2026.</p>
+              </div>
+              <button id="add-milestone-btn" class="pill-btn secondary">+ Add Custom Task</button>
+            </div>
+
+            <div class="milestones-timeline" id="milestones-timeline-container">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <!-- TAB 3: Budget & Savings -->
+          <div class="tab-pane" id="pane-budget" role="tabpanel">
+            <div class="pane-header">
+              <div>
+                <h2 class="pane-title">Holiday Budget & Savings Goal</h2>
+                <p class="pane-desc">Track how much you need to save each week before departure.</p>
+              </div>
+            </div>
+
+            <div class="budget-dashboard">
+              <div class="budget-card">
+                <span class="budget-card-title">Savings Target</span>
+                <div class="budget-input-group">
+                  <span class="currency-symbol" id="currency-display">$</span>
+                  <input type="number" id="budget-goal-input" class="budget-num-input" value="3500" min="0" step="50">
+                </div>
+                <span class="budget-card-sub">Total holiday spending goal</span>
+              </div>
+
+              <div class="budget-card">
+                <span class="budget-card-title">Saved So Far</span>
+                <div class="budget-input-group">
+                  <span class="currency-symbol">$</span>
+                  <input type="number" id="budget-saved-input" class="budget-num-input" value="1800" min="0" step="50">
+                </div>
+                <span class="budget-card-sub">Current vacation fund</span>
+              </div>
+
+              <div class="budget-card highlight">
+                <span class="budget-card-title">Remaining to Save</span>
+                <div class="budget-big-number" id="budget-remaining">$1,700</div>
+                <span class="budget-card-sub" id="budget-weekly-pace">~$212.50 / week needed</span>
+              </div>
+            </div>
+
+            <div class="budget-progress-container">
+              <div class="budget-progress-bar">
+                <div class="budget-progress-fill" id="budget-progress-fill" style="width: 51%;"></div>
+              </div>
+              <div class="budget-progress-stats">
+                <span id="budget-percent-text">51.4% Saved</span>
+                <span id="budget-weeks-remaining-text">8 weeks remaining</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 4: Clocks & Notes -->
+          <div class="tab-pane" id="pane-clocks" role="tabpanel">
+            <div class="pane-header">
+              <div>
+                <h2 class="pane-title">Timezone & Trip Notes</h2>
+                <p class="pane-desc">Compare current home time with your destination and jot down flight details or ideas.</p>
+              </div>
+            </div>
+
+            <div class="clocks-grid">
+              <div class="clock-card">
+                <div class="clock-label">🏡 Home Local Time</div>
+                <div class="clock-time" id="home-clock-time">--:--:--</div>
+                <div class="clock-date" id="home-clock-date">--------</div>
+              </div>
+
+              <div class="clock-card destination-clock">
+                <div class="clock-label-row">
+                  <span class="clock-label">✈️ Destination Time</span>
+                  <select id="destination-timezone-select" class="mini-select">
+                    <option value="Asia/Tokyo">Tokyo (JST)</option>
+                    <option value="Asia/Singapore">Singapore / Bali (SGT/WITA)</option>
+                    <option value="Asia/Bangkok">Bangkok / Phuket (ICT)</option>
+                    <option value="Europe/Paris" selected>Paris / Rome / Madrid (CET)</option>
+                    <option value="Europe/London">London (GMT/BST)</option>
+                    <option value="America/New_York">New York (EST)</option>
+                    <option value="Pacific/Honolulu">Hawaii (HST)</option>
+                  </select>
+                </div>
+                <div class="clock-time" id="dest-clock-time">--:--:--</div>
+                <div class="clock-date" id="dest-clock-date">--------</div>
+              </div>
+            </div>
+
+            <div class="trip-notes-card">
+              <h3 class="notes-title">📝 Holiday Notepad & Itinerary Ideas</h3>
+              <textarea id="trip-notes-area" class="notes-textarea" placeholder="Jot down flight confirmation numbers, packing reminders, restaurant reservations, or bucket list spots..."></textarea>
+              <div class="notes-footer">
+                <span class="save-status" id="notes-save-status">Auto-saved to browser</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <p>Holiday Countdown App • Target: <strong>23 November 2026</strong> • Pack your bags & enjoy your vacation!</p>
+    </footer>
+  </div>
+
+  <!-- Settings Modal (Customization) -->
+  <dialog id="settings-dialog" class="custom-dialog">
+    <div class="dialog-content">
+      <div class="dialog-header">
+        <h2 class="dialog-title">Trip Settings & Customization</h2>
+        <button id="close-settings-btn" class="dialog-close-btn" aria-label="Close settings">✕</button>
+      </div>
+
+      <form id="settings-form" class="settings-form">
+        <div class="form-group">
+          <label for="setting-trip-title">Holiday Title</label>
+          <input type="text" id="setting-trip-title" class="form-input" value="Holiday Countdown">
+        </div>
+
+        <div class="form-group">
+          <label for="setting-destination">Destination Name</label>
+          <input type="text" id="setting-destination" class="form-input" value="Tropical Getaway">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="setting-departure-date">Departure Date</label>
+            <input type="date" id="setting-departure-date" class="form-input" value="2026-11-23" required>
+          </div>
+
+          <div class="form-group">
+            <label for="setting-departure-time">Departure Time</label>
+            <input type="time" id="setting-departure-time" class="form-input" value="09:00">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="setting-start-date">Countdown Start Date (for progress % calculation)</label>
+          <input type="date" id="setting-start-date" class="form-input" value="2026-09-29">
+        </div>
+
+        <div class="form-group">
+          <label for="setting-ambience">Ambient Sound Effect</label>
+          <select id="setting-ambience" class="form-select">
+            <option value="ocean">🌊 Gentle Ocean Waves</option>
+            <option value="plane">✈️ Airplane Cabin Hum</option>
+            <option value="rain">🌧️ Warm Tropical Rain</option>
+            <option value="birds">🦜 Tropical Island Birds</option>
+          </select>
+        </div>
+
+        <div class="dialog-footer">
+          <button type="button" id="reset-defaults-btn" class="pill-btn secondary">Reset Defaults</button>
+          <button type="submit" class="pill-btn primary">Save & Apply</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <!-- Confetti Canvas for Celebration -->
+  <canvas id="confetti-canvas"></canvas>
+
+  <script src="app.js"></script>
+</body>
+</html>
